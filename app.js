@@ -16,13 +16,13 @@ checkParams();
 
 function checkParams() {
     const params = {
-        key: "",
-        hook: "notify",
+        key: "", //Key from your IFTTT account
+        hook: "notify", // IFTTT service name
         age: "29",
-        districtId: "301",
+        districtId: "301", //Cowin district id
         interval: defaultInterval,
         appointmentsListLimit: appointmentsListLimit,
-        date: "07-05-2021,08-05-2021,09-05-2021,10-05-2021,11-05-2021,12-05-2021,13-05-2021,14-05-2021,26-05-2021"
+        date: "07-05-2021,08-05-2021,09-05-2021,10-05-2021,11-05-2021,12-05-2021,13-05-2021,14-05-2021,26-05-2021" //Give the dates to search for
     }
 
     console.log('\nCowin Pinger started succesfully\n');
@@ -42,7 +42,7 @@ function scheduleCowinPinger(params) {
         console.clear();
         pingCount += 1;
         let dataOfPingCount="Ping Count: " + pingCount;
-        if(pingCount % 10 == 0) {
+        if(pingCount % 10 == 0) {//Sending a notification when app completes every 10 api pings,just to know service is running.
             axios.get(`https://maker.ifttt.com/trigger/${params.hook}/with/key/${params.key}?value1=${dataOfPingCount}`).then(() => {
                 console.log('Sent Ping count notification');
             });
@@ -56,6 +56,7 @@ function scheduleCowinPinger(params) {
 function pingCowin({ key, hook, age, districtId, appointmentsListLimit, date }) {
     let dateArr = date.split(',');
     for(let i = 0; i<dateArr.length; i++) {
+        //Pings public cowin api
         console.log("Pinging public url - ", `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=${districtId}&date=${dateArr[i]}`);
         axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=${districtId}&date=${dateArr[i]}`, { headers: { 'User-Agent': sampleUserAgent }}).then((result) => {
             console.log("Pinged public url - ", `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=${districtId}&date=${dateArr[i]}`);
@@ -90,7 +91,7 @@ function pingCowin({ key, hook, age, districtId, appointmentsListLimit, date }) 
             console.log("Error Url: " + err.config.url + " Error Msg: " + err.message);
         });
 
-        
+        //Pings private cowin (api being called after login). Seems to be some sync issue with public and private api, so calling all scenarios.
         console.log("Pinging private url - ", `https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=${districtId}&date=${dateArr[i]}`);
         axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=${districtId}&date=${dateArr[i]}`, { headers: { 'User-Agent': sampleUserAgent }}).then((result) => {
             console.log("Pinged private url - ", `https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=${districtId}&date=${dateArr[i]}`);
